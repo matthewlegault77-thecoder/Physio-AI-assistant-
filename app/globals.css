@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Markdown-style rendering for treatment plan output */
+.plan-output h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.25rem;
+}
+
+.plan-output h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.375rem;
+  color: #1e293b;
+}
+
+.plan-output p {
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+  color: #334155;
+}
+
+.plan-output ul, .plan-output ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.plan-output li {
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.plan-output ul li {
+  list-style-type: disc;
+}
+
+.plan-output ol li {
+  list-style-type: decimal;
+}
+
+.plan-output strong {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.plan-output table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.plan-output th {
+  background-color: #f1f5f9;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.plan-output td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  vertical-align: top;
+}
+
+.plan-output tr:nth-child(even) td {
+  background-color: #f8fafc;
+}
+
+.plan-output hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 1.5rem 0;
+}

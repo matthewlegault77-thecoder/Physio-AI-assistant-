@@ -75,9 +75,15 @@ const HOTSPOTS = {
 
 function getHotspot(bodyRegion, side) {
   if (!bodyRegion) return null;
-  const key = bodyRegion.toLowerCase().replace(/[\s-]/g, '_');
-  const sideKey = side && side !== 'bilateral' && side !== 'null' ? `${side}_${key}` : null;
-  return HOTSPOTS[sideKey] || HOTSPOTS[key] || null;
+  const input = bodyRegion.toLowerCase().replace(/[^a-z]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+  const sideKey = side && side !== 'bilateral' && side !== 'null' ? `${side}_${input}` : null;
+  if (sideKey && HOTSPOTS[sideKey]) return HOTSPOTS[sideKey];
+  if (HOTSPOTS[input]) return HOTSPOTS[input];
+  // Fuzzy: find a hotspot key contained in input or vice versa
+  for (const key of Object.keys(HOTSPOTS)) {
+    if (input.includes(key) || key.includes(input)) return HOTSPOTS[key];
+  }
+  return null;
 }
 
 function BodyDiagram({ bodyRegion, side }) {
@@ -231,7 +237,7 @@ function TreatmentTree({ data, injury, onStartOver }) {
         <div className="flex gap-0 min-h-[180px]">
           {/* Body diagram with injury highlight */}
           <div className="bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center min-w-[160px] w-[160px] shrink-0 border-r border-slate-200 py-4">
-            <BodyDiagram bodyRegion={injury?.body_part} side={null} />
+            <BodyDiagram bodyRegion={injury?.body_part} side={/\bleft\b/i.test(injury?.body_part) ? 'left' : /\bright\b/i.test(injury?.body_part) ? 'right' : null} />
           </div>
 
           {/* Diagnosis info */}

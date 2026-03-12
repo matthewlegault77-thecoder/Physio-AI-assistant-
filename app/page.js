@@ -482,17 +482,18 @@ function PaymentModal({ onSuccess }) {
 // ─── Shared field components ──────────────────────────────────────────────────
 function Field({ label, hint, children }) {
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold text-slate-700 mb-1">
+    <div className="mb-5">
+      <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
+        <span className="w-1 h-4 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
         {label}
-        {hint && <span className="font-normal text-slate-400 ml-1">({hint})</span>}
+        {hint && <span className="font-normal text-slate-400">({hint})</span>}
       </label>
       {children}
     </div>
   );
 }
 
-const inputCls = 'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white';
+const inputCls = 'w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)] bg-slate-50/80 shadow-sm transition-all placeholder:text-slate-400';
 
 function Input({ value, onChange, placeholder, type = 'text' }) {
   return <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={inputCls} />;
@@ -504,7 +505,7 @@ function Textarea({ value, onChange, placeholder, rows = 3 }) {
 
 function Select({ value, onChange, options }) {
   return (
-    <select value={value} onChange={e => onChange(e.target.value)} className={inputCls}>
+    <select value={value} onChange={e => onChange(e.target.value)} className={inputCls + ' appearance-none bg-[url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%2394a3b8%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22/%3E%3C/svg%3E")] bg-[length:20px] bg-[right_12px_center] bg-no-repeat pr-10'}>
       <option value="">Select...</option>
       {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
@@ -512,34 +513,54 @@ function Select({ value, onChange, options }) {
 }
 
 function Slider({ value, onChange }) {
+  const color = value <= 3 ? 'text-green-600' : value <= 6 ? 'text-amber-600' : 'text-red-600';
+  const bg = value <= 3 ? 'bg-green-50' : value <= 6 ? 'bg-amber-50' : 'bg-red-50';
   return (
     <div>
-      <div className="flex justify-between text-xs text-slate-500 mb-1">
+      <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
         <span>0 — None</span>
-        <span className="font-semibold text-blue-600">{value}/10</span>
+        <span className={`font-bold text-base px-3 py-0.5 rounded-full ${color} ${bg}`}>{value}/10</span>
         <span>10 — Severe</span>
       </div>
-      <input type="range" min={0} max={10} value={value} onChange={e => onChange(Number(e.target.value))} className="w-full accent-blue-600" />
+      <input type="range" min={0} max={10} value={value} onChange={e => onChange(Number(e.target.value))} className="w-full custom-slider" />
     </div>
   );
 }
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 function StepIndicator({ step }) {
-  const steps = ['Profile', 'Injury', 'Results'];
+  const steps = [
+    { label: 'Profile', icon: '👤' },
+    { label: 'Injury', icon: '🩹' },
+    { label: 'Results', icon: '📊' },
+  ];
   return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {steps.map((label, i) => {
+    <div className="flex items-center justify-center mb-10">
+      {steps.map(({ label, icon }, i) => {
         const num = i + 1;
         const active = step === num;
         const done = step > num;
         return (
-          <div key={label} className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${active ? 'bg-blue-600 text-white' : done ? 'bg-blue-200 text-blue-700' : 'bg-slate-200 text-slate-500'}`}>
-              {done ? '✓' : num}
+          <div key={label} className="flex items-center">
+            <div className="flex flex-col items-center gap-1.5">
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                active
+                  ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 ring-4 ring-blue-100'
+                  : done
+                  ? 'bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
+              }`}>
+                {done ? '✓' : icon}
+              </div>
+              <span className={`text-xs font-semibold tracking-wide transition-colors ${
+                active ? 'text-blue-700' : done ? 'text-emerald-600' : 'text-slate-400'
+              }`}>{label}</span>
             </div>
-            <span className={`text-sm font-medium ${active ? 'text-blue-700' : 'text-slate-500'}`}>{label}</span>
-            {i < steps.length - 1 && <div className="w-8 h-px bg-slate-300 mx-1" />}
+            {i < steps.length - 1 && (
+              <div className={`w-16 h-0.5 rounded-full mx-3 mb-5 transition-colors duration-300 ${
+                step > num ? 'bg-gradient-to-r from-emerald-400 to-blue-400' : 'bg-slate-200'
+              }`} />
+            )}
           </div>
         );
       })}
@@ -591,28 +612,52 @@ function DisclaimerStep({ onContinue }) {
 }
 
 // ─── Step 1: Profile ──────────────────────────────────────────────────────────
+function SectionCard({ icon, title, color, delay, children }) {
+  const colors = {
+    blue: 'border-t-blue-500',
+    emerald: 'border-t-emerald-500',
+    rose: 'border-t-rose-500',
+    purple: 'border-t-purple-500',
+    amber: 'border-t-amber-500',
+  };
+  const iconBg = {
+    blue: 'bg-blue-100 text-blue-600',
+    emerald: 'bg-emerald-100 text-emerald-600',
+    rose: 'bg-rose-100 text-rose-600',
+    purple: 'bg-purple-100 text-purple-600',
+    amber: 'bg-amber-100 text-amber-600',
+  };
+  return (
+    <div className={`bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] ${colors[color]} p-6 mb-5 card-hover shadow-sm animate-slideUp${delay ? `-${delay}` : ''}`}>
+      <div className="flex items-center gap-3 mb-5">
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${iconBg[color]}`}>{icon}</div>
+        <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function ProfileStep({ profile, onChange, onNext }) {
   const set = (section, field) => val => onChange({ ...profile, [section]: { ...profile[section], [field]: val } });
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-900">Your Profile</h2>
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold text-slate-900">Your Profile</h2>
         <p className="text-slate-500 text-sm mt-1">Saved locally in your browser. All fields optional.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Personal</h3>
+      <SectionCard icon="👤" title="Personal" color="blue" delay="">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Age" hint="years"><Input value={profile.personal.age} onChange={set('personal', 'age')} placeholder="e.g. 28" type="number" /></Field>
           <Field label="Sex"><Select value={profile.personal.sex} onChange={set('personal', 'sex')} options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }]} /></Field>
           <Field label="Height" hint="cm"><Input value={profile.personal.height_cm} onChange={set('personal', 'height_cm')} placeholder="e.g. 178" type="number" /></Field>
           <Field label="Weight" hint="kg"><Input value={profile.personal.weight_kg} onChange={set('personal', 'weight_kg')} placeholder="e.g. 75" type="number" /></Field>
         </div>
-      </div>
+      </SectionCard>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Fitness Background</h3>
+      <SectionCard icon="🏋️" title="Fitness Background" color="emerald" delay="1">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Fitness Level">
             <Select value={profile.fitness.level} onChange={set('fitness', 'level')} options={[
@@ -625,18 +670,18 @@ function ProfileStep({ profile, onChange, onNext }) {
           <Field label="Training Frequency" hint="days/week"><Input value={profile.fitness.training_frequency_per_week} onChange={set('fitness', 'training_frequency_per_week')} placeholder="e.g. 5" type="number" /></Field>
           <Field label="Years Training"><Input value={profile.fitness.years_of_training} onChange={set('fitness', 'years_of_training')} placeholder="e.g. 4" type="number" /></Field>
         </div>
-      </div>
+      </SectionCard>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Medical History</h3>
+      <SectionCard icon="🏥" title="Medical History" color="rose" delay="2">
         <Field label="Current Medications" hint="comma-separated"><Input value={profile.medical.current_medications} onChange={set('medical', 'current_medications')} placeholder="e.g. ibuprofen" /></Field>
         <Field label="Relevant Medical History" hint="comma-separated"><Input value={profile.medical.relevant_medical_history} onChange={set('medical', 'relevant_medical_history')} placeholder="e.g. diabetes" /></Field>
         <Field label="Previous Injuries" hint="comma-separated"><Input value={profile.medical.previous_injuries} onChange={set('medical', 'previous_injuries')} placeholder="e.g. left ACL tear 2021" /></Field>
         <Field label="Surgeries" hint="comma-separated"><Input value={profile.medical.surgeries} onChange={set('medical', 'surgeries')} placeholder="e.g. appendectomy 2018" /></Field>
-      </div>
+      </SectionCard>
 
-      <button onClick={onNext} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+      <button onClick={onNext} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
         Continue to Injury Description
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
       </button>
     </div>
   );
@@ -647,33 +692,35 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
   const set = field => val => onChange({ ...injury, [field]: val });
   const valid = injury.body_part.trim() && injury.description.trim();
 
+  const painBg = (v) => v <= 3 ? 'from-green-50/50 to-emerald-50/30' : v <= 6 ? 'from-amber-50/50 to-yellow-50/30' : 'from-red-50/50 to-rose-50/30';
+
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-900">Describe Your Injury</h2>
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold text-slate-900">Describe Your Injury</h2>
         <p className="text-slate-500 text-sm mt-1">The more detail you provide, the more accurate your plan will be.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
+      <SectionCard icon="📍" title="Injury Details" color="purple" delay="">
         <Field label="Body Part Affected" hint="required"><Input value={injury.body_part} onChange={set('body_part')} placeholder="e.g. left knee, lower back, right shoulder" /></Field>
         <Field label="Description" hint="required — describe what happened and what you feel"><Textarea value={injury.description} onChange={set('description')} placeholder="e.g. Twisted my ankle stepping off a curb. Sharp pain on the outer side, some swelling." rows={4} /></Field>
         <Field label="How Long Have You Had This Issue?"><Input value={injury.duration} onChange={set('duration')} placeholder="e.g. 2 days, 3 weeks, 2 months" /></Field>
-      </div>
+      </SectionCard>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Pain Levels</h3>
-        <Field label="Pain at Rest"><Slider value={injury.pain_rest} onChange={set('pain_rest')} /></Field>
-        <Field label="Pain with Movement"><Slider value={injury.pain_movement} onChange={set('pain_movement')} /></Field>
-      </div>
+      <SectionCard icon="🔥" title="Pain Levels" color="amber" delay="1">
+        <div className={`rounded-xl p-4 mb-4 bg-gradient-to-r ${painBg(Math.max(injury.pain_rest, injury.pain_movement))} transition-colors duration-500`}>
+          <Field label="Pain at Rest"><Slider value={injury.pain_rest} onChange={set('pain_rest')} /></Field>
+          <Field label="Pain with Movement"><Slider value={injury.pain_movement} onChange={set('pain_movement')} /></Field>
+        </div>
+      </SectionCard>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">More Details</h3>
+      <SectionCard icon="📋" title="More Details" color="blue" delay="2">
         <Field label="What Makes It Worse?"><Input value={injury.worse} onChange={set('worse')} placeholder="e.g. stairs, prolonged sitting, twisting" /></Field>
         <Field label="What Makes It Better?"><Input value={injury.better} onChange={set('better')} placeholder="e.g. rest, ice, elevation" /></Field>
         <Field label="How Did It Start?">
           <div className="flex gap-3">
-            {[['sudden', 'Sudden (acute)'], ['gradual', 'Gradual (overuse)']].map(([val, label]) => (
-              <button key={val} onClick={() => set('onset')(val)} className={`flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${injury.onset === val ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'}`}>
+            {[['sudden', '⚡ Sudden (acute)'], ['gradual', '🔄 Gradual (overuse)']].map(([val, label]) => (
+              <button key={val} onClick={() => set('onset')(val)} className={`flex-1 py-2.5 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${injury.onset === val ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-md shadow-blue-500/20 scale-[1.02]' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:shadow-sm'}`}>
                 {label}
               </button>
             ))}
@@ -682,23 +729,29 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
         <Field label="Previous Occurrence?"><Input value={injury.previous} onChange={set('previous')} placeholder="e.g. Yes, same ankle 2 years ago / No" /></Field>
         <Field label="Current Limitations"><Input value={injury.limitations} onChange={set('limitations')} placeholder="e.g. cannot run, difficult to lift overhead" /></Field>
         <Field label="Treatments Already Tried"><Input value={injury.treatments_tried} onChange={set('treatments_tried')} placeholder="e.g. ice, rest, ibuprofen" /></Field>
-      </div>
+      </SectionCard>
 
       <div className="flex gap-3">
-        <button onClick={onBack} className="flex-none px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
+        <button onClick={onBack} className="flex-none px-6 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
           Back
         </button>
         <button
           onClick={onNext}
           disabled={!valid || loading}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-300 disabled:to-slate-300 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Generating Plan...
             </span>
-          ) : 'Generate Treatment Plan'}
+          ) : (
+            <>
+              Generate Treatment Plan
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -803,7 +856,7 @@ export default function Home() {
   };
 
   return (
-    <main className={`min-h-screen py-10 px-4 ${step === 0 ? 'bg-transparent' : ''}`}>
+    <main className={`min-h-screen py-10 px-4 ${step === 0 ? 'bg-transparent' : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40'}`}>
       {showPayment && <PaymentModal onSuccess={handlePaymentSuccess} />}
 
       <div className="max-w-4xl mx-auto">

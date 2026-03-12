@@ -12,11 +12,16 @@ module.exports = {
       },
       animation: {
         rainbow: 'rainbow var(--speed, 2s) infinite linear',
+        slideUp: 'slideUp 0.5s ease-out both',
       },
       keyframes: {
         rainbow: {
           '0%': { 'background-position': '0%' },
           '100%': { 'background-position': '200%' },
+        },
+        slideUp: {
+          from: { opacity: '0', transform: 'translateY(20px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
         },
       },
     },

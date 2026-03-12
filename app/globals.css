@@ -97,3 +97,48 @@ input[type="range"].custom-slider::-webkit-slider-thumb:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1), 0 4px 10px -5px rgba(0,0,0,0.04);
 }
+
+/* ── Rainbow button ──────────────────────────────────────────────────────── */
+@keyframes rainbow-move {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.rainbow-btn {
+  border: calc(0.08 * 1rem) solid transparent;
+  background-clip: padding-box, border-box, border-box;
+  background-origin: border-box;
+  background-size: 200%;
+  background-image:
+    linear-gradient(#121213, #121213),
+    linear-gradient(#121213 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)),
+    linear-gradient(90deg,
+      hsl(var(--color-1)),
+      hsl(var(--color-5)),
+      hsl(var(--color-3)),
+      hsl(var(--color-4)),
+      hsl(var(--color-2))
+    );
+  animation: rainbow-move 2s infinite linear;
+}
+
+.rainbow-btn::before {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: 50%;
+  z-index: 0;
+  height: 20%;
+  width: 60%;
+  transform: translateX(-50%);
+  background-size: 200%;
+  background-image: linear-gradient(90deg,
+    hsl(var(--color-1)),
+    hsl(var(--color-5)),
+    hsl(var(--color-3)),
+    hsl(var(--color-4)),
+    hsl(var(--color-2))
+  );
+  filter: blur(0.8rem);
+  animation: rainbow-move 2s infinite linear;
+}

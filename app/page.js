@@ -199,7 +199,7 @@ function CTAButton({ onClick, label, emoji }) {
   );
 }
 
-function TreatmentTree({ data, onStartOver }) {
+function TreatmentTree({ data, injury, onStartOver }) {
   const [show, setShow] = useState({ why: false, solution: false, nextSteps: false });
   const reveal = (key) => setShow(v => ({ ...v, [key]: true }));
 
@@ -229,9 +229,9 @@ function TreatmentTree({ data, onStartOver }) {
       {/* ── Node 1: Diagnosis + Body Diagram ── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn">
         <div className="flex gap-0 min-h-[180px]">
-          {/* 3D Spline scene column */}
-          <div className="bg-black relative overflow-hidden min-w-[200px] w-[200px] shrink-0 border-r border-slate-800">
-            <SplineScene scene={SPLINE_SCENE} className="w-full h-full absolute inset-0" />
+          {/* Body diagram with injury highlight */}
+          <div className="bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center min-w-[160px] w-[160px] shrink-0 border-r border-slate-200 py-4">
+            <BodyDiagram bodyRegion={injury?.body_part} side={null} />
           </div>
 
           {/* Diagnosis info */}
@@ -831,7 +831,7 @@ export default function Home() {
         )}
 
         {step === 3 && !loading && planData && (
-          <TreatmentTree data={planData} onStartOver={handleStartOver} />
+          <TreatmentTree data={planData} injury={injury} onStartOver={handleStartOver} />
         )}
       </div>
     </main>

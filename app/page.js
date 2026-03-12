@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import ShaderBackground from '../components/ui/shader-background';
+import { SplineScene } from '../components/ui/spline-scene';
+import { RainbowButton } from '../components/ui/rainbow-button';
+
+const SPLINE_SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PROFILE_KEY = 'physio_ai_profile';
@@ -225,9 +230,9 @@ function TreatmentTree({ data, onStartOver }) {
       {/* ── Node 1: Diagnosis + Body Diagram ── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn">
         <div className="flex gap-0 min-h-[180px]">
-          {/* Body diagram column */}
-          <div className="bg-gradient-to-b from-orange-50 to-amber-50 px-5 py-6 flex items-center justify-center min-w-[130px] border-r border-slate-100">
-            <BodyDiagram bodyRegion={data.bodyRegion} side={data.side} />
+          {/* 3D Spline scene column */}
+          <div className="bg-black relative overflow-hidden min-w-[200px] w-[200px] shrink-0 border-r border-slate-800">
+            <SplineScene scene={SPLINE_SCENE} className="w-full h-full absolute inset-0" />
           </div>
 
           {/* Diagnosis info */}
@@ -540,40 +545,43 @@ function StepIndicator({ step }) {
 // ─── Step 0: Disclaimer ───────────────────────────────────────────────────────
 function DisclaimerStep({ onContinue }) {
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-          <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
+    <>
+      <ShaderBackground />
+      <div className="max-w-2xl mx-auto relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4 border border-white/30">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h1 className="text-4xl font-bold text-white drop-shadow-lg">AI Physiotherapist</h1>
+          <p className="text-white/70 mt-2 text-lg">Personalized injury assessment and rehab planning</p>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900">AI Physiotherapist</h1>
-        <p className="text-slate-500 mt-2">Personalized injury assessment and rehab planning</p>
-      </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-4">
-        <h2 className="text-lg font-bold text-amber-800 mb-3">Medical Disclaimer</h2>
-        <ul className="text-sm text-amber-700 space-y-2">
-          <li>This tool provides AI-generated guidance for <strong>educational purposes only</strong>. It is not a substitute for professional medical diagnosis or treatment.</li>
-          <li>Always consult a licensed physiotherapist or physician before beginning any rehabilitation program.</li>
-          <li>If your condition worsens at any point, stop all exercises and seek professional care.</li>
-        </ul>
-      </div>
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 mb-4">
+          <h2 className="text-lg font-bold text-amber-300 mb-3">Medical Disclaimer</h2>
+          <ul className="text-sm text-white/80 space-y-2">
+            <li>This tool provides AI-generated guidance for <strong className="text-white">educational purposes only</strong>. It is not a substitute for professional medical diagnosis or treatment.</li>
+            <li>Always consult a licensed physiotherapist or physician before beginning any rehabilitation program.</li>
+            <li>If your condition worsens at any point, stop all exercises and seek professional care.</li>
+          </ul>
+        </div>
 
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
-        <h2 className="text-sm font-bold text-red-700 mb-2 uppercase tracking-wide">Seek Emergency Care Immediately If You Have:</h2>
-        <ul className="text-sm text-red-600 space-y-1">
-          <li>Severe pain, inability to move a limb, or visible deformity</li>
-          <li>Loss of bladder or bowel control</li>
-          <li>Chest pain, difficulty breathing, or signs of a stroke</li>
-          <li>Numbness or tingling spreading into both legs</li>
-        </ul>
-      </div>
+        <div className="bg-red-900/30 backdrop-blur-md border border-red-400/30 rounded-xl p-6 mb-8">
+          <h2 className="text-sm font-bold text-red-300 mb-2 uppercase tracking-wide">Seek Emergency Care Immediately If You Have:</h2>
+          <ul className="text-sm text-red-200/80 space-y-1">
+            <li>Severe pain, inability to move a limb, or visible deformity</li>
+            <li>Loss of bladder or bowel control</li>
+            <li>Chest pain, difficulty breathing, or signs of a stroke</li>
+            <li>Numbness or tingling spreading into both legs</li>
+          </ul>
+        </div>
 
-      <button onClick={onContinue} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-base">
-        I Understand, Continue
-      </button>
-    </div>
+        <button onClick={onContinue} className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-bold py-4 px-6 rounded-xl transition-all text-base shadow-lg hover:shadow-xl">
+          I Understand, Continue →
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -675,18 +683,18 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
         <button onClick={onBack} className="flex-none px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
           Back
         </button>
-        <button
+        <RainbowButton
           onClick={onNext}
           disabled={!valid || loading}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+          className="flex-1 h-auto py-3 px-6 text-base font-semibold rounded-xl"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Generating Plan...
             </span>
-          ) : 'Generate Treatment Plan'}
-        </button>
+          ) : 'Get Unlimited Access →'}
+        </RainbowButton>
       </div>
     </div>
   );
@@ -790,7 +798,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen py-10 px-4">
+    <main className={`min-h-screen py-10 px-4 ${step === 0 ? 'bg-transparent' : ''}`}>
       {showPayment && <PaymentModal onSuccess={handlePaymentSuccess} />}
 
       <div className="max-w-4xl mx-auto">

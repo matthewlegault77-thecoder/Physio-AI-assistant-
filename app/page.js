@@ -5,7 +5,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import ShaderBackground from '../components/ui/shader-background';
 import { SplineScene } from '../components/ui/spline-scene';
-import { RainbowButton } from '../components/ui/rainbow-button';
 
 const SPLINE_SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
@@ -683,18 +682,18 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
         <button onClick={onBack} className="flex-none px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
           Back
         </button>
-        <RainbowButton
+        <button
           onClick={onNext}
           disabled={!valid || loading}
-          className="flex-1 h-auto py-3 px-6 text-base font-semibold rounded-xl"
+          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Generating Plan...
             </span>
-          ) : 'Get Unlimited Access →'}
-        </RainbowButton>
+          ) : 'Generate Treatment Plan'}
+        </button>
       </div>
     </div>
   );

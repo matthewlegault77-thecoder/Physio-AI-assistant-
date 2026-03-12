@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { RainbowButton } from '@/components/ui/rainbow-button';
 
 const PROFILE_KEY = 'physio_ai_profile';
 
@@ -190,12 +191,12 @@ function DisclaimerStep({ onContinue }) {
         </ul>
       </div>
 
-      <button
+      <RainbowButton
         onClick={onContinue}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors text-base"
+        className="w-full py-3 px-6 text-base font-semibold"
       >
         I Understand, Continue
-      </button>
+      </RainbowButton>
     </div>
   );
 }
@@ -370,13 +371,13 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
         >
           Back
         </button>
-        <button
+        <RainbowButton
           onClick={onNext}
           disabled={!valid || loading}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+          className="flex-1 py-3 px-6 font-semibold"
         >
           {loading ? 'Generating Plan...' : 'Generate Treatment Plan'}
-        </button>
+        </RainbowButton>
       </div>
     </div>
   );

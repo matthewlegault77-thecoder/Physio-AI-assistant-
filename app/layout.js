@@ -1,5 +1,6 @@
 import './globals.css';
 import Link from 'next/link';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata = {
   title: 'AI Physiotherapist',
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
             </nav>
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   );

@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import ShaderBackground from '../components/ui/shader-background';
 import { SplineScene } from '../components/ui/spline-scene';
 
@@ -23,14 +21,6 @@ const DEFAULT_INJURY = {
   pain_rest: 0, pain_movement: 0,
   worse: '', better: '', onset: '', previous: '', limitations: '', treatments_tried: '',
 };
-
-// ─── Stripe ───────────────────────────────────────────────────────────────────
-let _stripePromise;
-function getStripe() {
-  const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  if (key && !_stripePromise) _stripePromise = loadStripe(key);
-  return _stripePromise ?? null;
-}
 
 // ─── Body Diagram ─────────────────────────────────────────────────────────────
 const HOTSPOTS = {
@@ -354,67 +344,27 @@ function TreatmentTree({ data, injury, onStartOver }) {
 }
 
 // ─── Payment ──────────────────────────────────────────────────────────────────
-function CheckoutForm({ onSuccess }) {
-  const stripe = useStripe();
-  const elements = useElements();
+function PaymentModal({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
+  const handleCheckout = async () => {
     setLoading(true);
     setError('');
-
-    const { error: stripeErr } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: window.location.href },
-      redirect: 'if_required',
-    });
-
-    if (stripeErr) {
-      setError(stripeErr.message);
+    try {
+      const res = await fetch('/api/checkout', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || 'Failed to create checkout session.');
+        setLoading(false);
+      }
+    } catch {
+      setError('Network error. Please try again.');
       setLoading(false);
-    } else {
-      localStorage.setItem(ACCESS_KEY, 'true');
-      onSuccess();
     }
   };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
-      {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
-      <button
-        type="submit"
-        disabled={!stripe || loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold py-3.5 px-6 rounded-xl transition-colors text-base shadow-md"
-      >
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Processing...
-          </span>
-        ) : 'Pay $35 — Unlock Lifetime Access'}
-      </button>
-    </form>
-  );
-}
-
-function PaymentModal({ onSuccess }) {
-  const [clientSecret, setClientSecret] = useState('');
-  const [fetchError, setFetchError] = useState('');
-  const stripe = getStripe();
-
-  useEffect(() => {
-    fetch('/api/payment', { method: 'POST' })
-      .then(r => r.json())
-      .then(data => {
-        if (data.clientSecret) setClientSecret(data.clientSecret);
-        else setFetchError(data.error || 'Failed to initialize payment.');
-      })
-      .catch(() => setFetchError('Network error. Please try again.'));
-  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -447,32 +397,34 @@ function PaymentModal({ onSuccess }) {
           </div>
         </div>
 
-        {fetchError && (
+        {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-sm text-red-700">
-            {fetchError}
+            {error}
           </div>
         )}
 
-        {!clientSecret && !fetchError && (
-          <div className="flex justify-center py-10">
-            <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-          </div>
-        )}
+        <button
+          onClick={handleCheckout}
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold py-3.5 px-6 rounded-xl transition-colors text-base shadow-md"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Redirecting to checkout...
+            </span>
+          ) : 'Pay $35 — Unlock Lifetime Access'}
+        </button>
 
-        {clientSecret && stripe && (
-          <Elements stripe={stripe} options={{ clientSecret, appearance: { theme: 'stripe', variables: { colorPrimary: '#2563eb', borderRadius: '10px' } } }}>
-            <CheckoutForm onSuccess={onSuccess} />
-          </Elements>
-        )}
-
-        {!stripe && clientSecret && (
-          <div className="text-sm text-red-600 text-center py-4">
-            Stripe is not configured. Please add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to your environment.
-          </div>
-        )}
+        <button
+          onClick={onClose}
+          className="w-full mt-3 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+        >
+          Cancel
+        </button>
 
         <p className="text-xs text-slate-400 text-center mt-4">
-          🔒 Secured by Stripe · We never store your card details
+          Secured by Stripe · We never store your card details
         </p>
       </div>
     </div>
@@ -787,6 +739,15 @@ export default function Home() {
       if (saved) setProfile(JSON.parse(saved));
       setHasAccess(localStorage.getItem(ACCESS_KEY) === 'true');
     } catch {}
+
+    // Handle return from Stripe Checkout
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      localStorage.setItem(ACCESS_KEY, 'true');
+      setHasAccess(true);
+      // Clean up the URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
@@ -840,10 +801,8 @@ export default function Home() {
     }
   };
 
-  const handlePaymentSuccess = () => {
-    setHasAccess(true);
+  const handlePaymentClose = () => {
     setShowPayment(false);
-    generatePlan();
   };
 
   const handleStartOver = () => {
@@ -855,7 +814,7 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen py-10 px-4 ${step === 0 ? 'bg-transparent' : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40'}`}>
-      {showPayment && <PaymentModal onSuccess={handlePaymentSuccess} />}
+      {showPayment && <PaymentModal onClose={handlePaymentClose} />}
 
       <div className="max-w-4xl mx-auto">
         {step === 0 && <DisclaimerStep onContinue={() => setStep(1)} />}

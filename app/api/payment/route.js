@@ -10,7 +10,7 @@ export async function POST() {
     const stripe = new Stripe(secretKey);
     const paymentIntent = await stripe.paymentIntents.create({
       amount: 3500, // $35.00 in cents
-      currency: 'usd',
+      currency: 'cad',
       payment_method_types: ['card'],
       metadata: { product: 'physio_ai_lifetime' },
     });

@@ -18,14 +18,24 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    const { error: authError } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password });
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
+    if (isSignUp) {
+      const { data, error: authError } = await supabase.auth.signUp({ email, password });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+      // Create a profiles row so payment status can be tracked
+      if (data?.user) {
+        await supabase.from('profiles').upsert({ id: data.user.id, has_paid: false });
+      }
+    } else {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
     }
 
     router.push('/');

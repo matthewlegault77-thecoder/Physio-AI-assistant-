@@ -31,17 +31,17 @@ export async function POST(request) {
       return Response.json({ error: 'Missing userId' }, { status: 400 });
     }
 
-    // Use admin client to bypass RLS
+    // Use admin client to bypass RLS — upsert so row is created if missing
     const supabase = createAdminClient();
     const { error } = await supabase
       .from('profiles')
-      .update({
+      .upsert({
+        id: userId,
         has_paid: true,
         stripe_session_id: session.id,
         stripe_customer_id: session.customer,
         paid_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
+      });
 
     if (error) {
       console.error('Failed to update profile:', error);

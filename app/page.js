@@ -758,7 +758,13 @@ export default function Home() {
           .eq('id', currentUser.id)
           .single();
 
-        setHasAccess(profileData?.has_paid === true);
+        if (!profileData) {
+          // Profile row missing — create it so payment tracking works
+          await supabase.from('profiles').upsert({ id: currentUser.id, has_paid: false });
+          setHasAccess(false);
+        } else {
+          setHasAccess(profileData.has_paid === true);
+        }
       }
       setAuthLoading(false);
     }
@@ -778,7 +784,12 @@ export default function Home() {
             .select('has_paid')
             .eq('id', newUser.id)
             .single();
-          setHasAccess(profileData?.has_paid === true);
+          if (!profileData) {
+            await supabase.from('profiles').upsert({ id: newUser.id, has_paid: false });
+            setHasAccess(false);
+          } else {
+            setHasAccess(profileData.has_paid === true);
+          }
         }
       }
     );

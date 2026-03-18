@@ -105,13 +105,13 @@ export async function POST(request) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: profile } = await supabase
+  const { data: profileRow } = await supabase
     .from('profiles')
     .select('has_paid')
     .eq('id', user.id)
     .single();
 
-  if (!profile?.has_paid) {
+  if (!profileRow?.has_paid) {
     return Response.json({ error: 'Payment required' }, { status: 403 });
   }
 

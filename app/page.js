@@ -485,6 +485,7 @@ function StepIndicator({ step }) {
   const steps = [
     { label: 'Profile', icon: '👤' },
     { label: 'Injury', icon: '🩹' },
+    { label: 'Account', icon: '🔐' },
     { label: 'Results', icon: '📊' },
   ];
   return (
@@ -699,10 +700,241 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
             </span>
           ) : (
             <>
-              Generate Treatment Plan
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              Continue to Account
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
             </>
           )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 3: Account & Access ────────────────────────────────────────────────
+function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }) {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const supabase = createClient();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError('');
+
+    if (isSignUp) {
+      const { data, error: authError } = await supabase.auth.signUp({ email, password });
+      if (authError) {
+        setError(authError.message);
+        setSubmitting(false);
+        return;
+      }
+      if (data?.user) {
+        await supabase.from('profiles').upsert({ id: data.user.id, has_paid: false });
+      }
+    } else {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setError(authError.message);
+        setSubmitting(false);
+        return;
+      }
+    }
+    setSubmitting(false);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="max-w-md mx-auto flex flex-col items-center py-20">
+        <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        <p className="text-sm text-slate-500 mt-4">Checking account...</p>
+      </div>
+    );
+  }
+
+  // Logged in — show account status
+  if (user) {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl font-bold text-slate-900">Your Account</h2>
+          <p className="text-slate-500 text-sm mt-1">Review your account before generating your plan.</p>
+        </div>
+
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] border-t-emerald-500 p-6 mb-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-emerald-100 text-emerald-600">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Signed In</h3>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+            <p className="text-sm text-slate-600">
+              <span className="font-semibold text-slate-800">{user.email}</span>
+            </p>
+          </div>
+        </div>
+
+        {hasAccess ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] border-t-blue-500 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-blue-100 text-blue-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Lifetime Access</h3>
+                <p className="text-xs text-slate-500 mt-0.5">You already have unlimited access.</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] border-t-amber-500 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-amber-100 text-amber-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Payment Required</h3>
+                <p className="text-xs text-slate-500 mt-0.5">One-time payment for lifetime access.</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-100">
+              <p className="text-sm text-amber-800">
+                Your account does not have access yet. You&apos;ll need to complete a one-time <span className="font-bold">$35</span> payment to generate treatment plans.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button onClick={onBack} className="flex-none px-6 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+            Back
+          </button>
+          {hasAccess ? (
+            <button
+              onClick={onGenerate}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+            >
+              Generate Treatment Plan
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </button>
+          ) : (
+            <button
+              onClick={onPay}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+            >
+              Continue to Payment
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Not logged in — show inline login/signup form
+  return (
+    <div className="max-w-md mx-auto">
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold text-slate-900">
+          {isSignUp ? 'Create Your Account' : 'Sign In to Continue'}
+        </h2>
+        <p className="text-slate-500 text-sm mt-1">
+          {isSignUp
+            ? 'Create an account to get your AI physiotherapy assessment.'
+            : 'Sign in to access your assessments and generate your plan.'}
+        </p>
+      </div>
+
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] border-t-blue-500 p-6 mb-5 shadow-sm">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-blue-100 text-blue-600">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">
+            {isSignUp ? 'Sign Up' : 'Sign In'}
+          </h3>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
+              <span className="w-1 h-4 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              className={inputCls}
+            />
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
+              <span className="w-1 h-4 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={isSignUp ? 'Create a password (min 6 characters)' : 'Your password'}
+              required
+              minLength={6}
+              className={inputCls}
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold py-3.5 px-6 rounded-xl transition-colors text-base shadow-md"
+          >
+            {submitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {isSignUp ? 'Creating account...' : 'Signing in...'}
+              </span>
+            ) : (
+              isSignUp ? 'Create Account' : 'Sign In'
+            )}
+          </button>
+        </form>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => { setIsSignUp(!isSignUp); setError(''); }}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <button onClick={onBack} className="flex-1 px-6 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all flex items-center justify-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+          Back
         </button>
       </div>
     </div>
@@ -835,7 +1067,7 @@ export default function Home() {
     setLoading(true);
     setError('');
     setPlanData(null);
-    setStep(3);
+    setStep(4);
 
     const normalizedProfile = {
       ...profile,
@@ -876,11 +1108,6 @@ export default function Home() {
   };
 
   const handleGenerateClick = () => {
-    if (authLoading) return;
-    if (!user) {
-      router.push('/login');
-      return;
-    }
     if (hasAccess) {
       generatePlan();
     } else {
@@ -939,7 +1166,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         {step === 0 && <DisclaimerStep onContinue={() => setStep(1)} />}
 
-        {step > 0 && step < 3 && <StepIndicator step={step} />}
+        {step > 0 && step < 4 && <StepIndicator step={step} />}
 
         {step === 1 && (
           <ProfileStep profile={profile} onChange={setProfile} onNext={() => setStep(2)} />
@@ -949,15 +1176,26 @@ export default function Home() {
           <InjuryStep
             injury={injury}
             onChange={setInjury}
-            onNext={handleGenerateClick}
+            onNext={() => setStep(3)}
             onBack={() => setStep(1)}
-            loading={loading}
+            loading={false}
           />
         )}
 
-        {step === 3 && loading && <LoadingResults />}
+        {step === 3 && (
+          <AccountStep
+            user={user}
+            hasAccess={hasAccess}
+            authLoading={authLoading}
+            onGenerate={generatePlan}
+            onPay={() => setShowPayment(true)}
+            onBack={() => setStep(2)}
+          />
+        )}
 
-        {step === 3 && error && (
+        {step === 4 && loading && <LoadingResults />}
+
+        {step === 4 && error && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700">{error}</div>
             <button onClick={handleStartOver} className="mt-4 w-full border border-slate-300 rounded-xl py-3 text-slate-600 hover:bg-slate-50">
@@ -966,7 +1204,7 @@ export default function Home() {
           </div>
         )}
 
-        {step === 3 && !loading && planData && (
+        {step === 4 && !loading && planData && (
           <TreatmentTree data={planData} injury={injury} onStartOver={handleStartOver} />
         )}
       </div>

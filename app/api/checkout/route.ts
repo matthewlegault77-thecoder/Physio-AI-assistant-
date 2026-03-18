@@ -1,7 +1,15 @@
 import Stripe from 'stripe';
 import { NextRequest } from 'next/server';
+import { createClient } from '../../../lib/supabase/server';
 
 export async function POST(request: NextRequest) {
+  // Derive userId from the server session — not from the request body
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     return Response.json({ error: 'Stripe is not configured on this server.' }, { status: 500 });
@@ -23,7 +31,11 @@ export async function POST(request: NextRequest) {
       mode: 'payment',
       success_url: `${origin}?payment=success`,
       cancel_url: `${origin}?payment=cancelled`,
-      metadata: { product: 'physio_ai_lifetime' },
+      customer_email: user.email,
+      metadata: {
+        product: 'physio_ai_lifetime',
+        userId: user.id,
+      },
     });
 
     return Response.json({ url: session.url });

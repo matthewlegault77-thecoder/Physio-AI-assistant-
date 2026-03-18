@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '../lib/supabase/client';
 import ShaderBackground from '../components/ui/shader-background';
 import { SplineScene } from '../components/ui/spline-scene';
 
@@ -8,7 +10,6 @@ const SPLINE_SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splineco
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PROFILE_KEY = 'physio_ai_profile';
-const ACCESS_KEY = 'physio_access';
 
 const DEFAULT_PROFILE = {
   personal: { age: '', sex: '', height_cm: '', weight_kg: '' },
@@ -732,23 +733,88 @@ export default function Home() {
   const [error, setError] = useState('');
   const [showPayment, setShowPayment] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
+  // Check Supabase auth + paid status on mount
   useEffect(() => {
+    // Load saved profile from localStorage (just UI state, not auth)
     try {
       const saved = localStorage.getItem(PROFILE_KEY);
       if (saved) setProfile(JSON.parse(saved));
-      setHasAccess(localStorage.getItem(ACCESS_KEY) === 'true');
     } catch {}
 
-    // Handle return from Stripe Checkout
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('payment') === 'success') {
-      localStorage.setItem(ACCESS_KEY, 'true');
-      setHasAccess(true);
-      // Clean up the URL
-      window.history.replaceState({}, '', window.location.pathname);
+    async function checkAuth() {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      setUser(currentUser);
+
+      if (currentUser) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('has_paid')
+          .eq('id', currentUser.id)
+          .single();
+
+        setHasAccess(profileData?.has_paid === true);
+      }
+      setAuthLoading(false);
     }
+
+    checkAuth();
+
+    // Listen for auth state changes (login/logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const newUser = session?.user ?? null;
+        setUser(newUser);
+        if (!newUser) {
+          setHasAccess(false);
+        } else {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('has_paid')
+            .eq('id', newUser.id)
+            .single();
+          setHasAccess(profileData?.has_paid === true);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Handle return from Stripe Checkout — poll for webhook completion
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') !== 'success' || !user || hasAccess) return;
+
+    window.history.replaceState({}, '', window.location.pathname);
+    setVerifyingPayment(true);
+
+    let attempts = 0;
+    const poll = setInterval(async () => {
+      attempts++;
+      const { data } = await supabase
+        .from('profiles')
+        .select('has_paid')
+        .eq('id', user.id)
+        .single();
+
+      if (data?.has_paid) {
+        setHasAccess(true);
+        setVerifyingPayment(false);
+        clearInterval(poll);
+      } else if (attempts >= 8) {
+        setVerifyingPayment(false);
+        clearInterval(poll);
+      }
+    }, 2000);
+
+    return () => clearInterval(poll);
+  }, [user, hasAccess]);
 
   useEffect(() => {
     try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch {}
@@ -780,6 +846,11 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok || data.error) {
+        if (res.status === 401) {
+          setError('Please sign in to continue.');
+          router.push('/login');
+          return;
+        }
         setError(data.error || 'Something went wrong. Please try again.');
         return;
       }
@@ -794,6 +865,10 @@ export default function Home() {
   };
 
   const handleGenerateClick = () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     if (hasAccess) {
       generatePlan();
     } else {
@@ -805,6 +880,13 @@ export default function Home() {
     setShowPayment(false);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setHasAccess(false);
+    setStep(0);
+  };
+
   const handleStartOver = () => {
     setInjury(DEFAULT_INJURY);
     setPlanData(null);
@@ -814,6 +896,32 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen py-10 px-4 ${step === 0 ? 'bg-transparent' : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40'}`}>
+      {/* User bar */}
+      {user && (
+        <div className="fixed top-4 right-4 flex items-center gap-3 z-30">
+          <span className="text-sm text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm border border-slate-200">
+            {user.email}
+          </span>
+          <button
+            onClick={handleSignOut}
+            className="text-sm text-slate-400 hover:text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+
+      {/* Payment verifying overlay */}
+      {verifyingPayment && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm">
+            <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+            <h2 className="text-lg font-bold text-slate-900">Verifying your payment...</h2>
+            <p className="text-sm text-slate-500 mt-1">This usually takes just a moment.</p>
+          </div>
+        </div>
+      )}
+
       {showPayment && <PaymentModal onClose={handlePaymentClose} />}
 
       <div className="max-w-4xl mx-auto">

@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { createClient } from '../../../lib/supabase/server';
 
 const SYSTEM_PROMPT = `You are an expert physiotherapist AI. Analyze the patient profile and injury and return ONLY a valid JSON object. No markdown, no code blocks, no explanation text — just the raw JSON.
 
@@ -97,6 +98,23 @@ function buildInjuryBlock(injury) {
 }
 
 export async function POST(request) {
+  // Auth + payment gating (defense-in-depth — middleware also checks auth)
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('has_paid')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.has_paid) {
+    return Response.json({ error: 'Payment required' }, { status: 403 });
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return Response.json({ error: 'ANTHROPIC_API_KEY not configured on the server.' }, { status: 500 });

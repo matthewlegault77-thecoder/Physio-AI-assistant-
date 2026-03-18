@@ -865,6 +865,7 @@ export default function Home() {
   };
 
   const handleGenerateClick = () => {
+    if (authLoading) return;
     if (!user) {
       router.push('/login');
       return;

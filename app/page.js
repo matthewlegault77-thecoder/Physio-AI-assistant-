@@ -725,14 +725,22 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
     setError('');
 
     if (isSignUp) {
-      const { data, error: authError } = await supabase.auth.signUp({ email, password });
-      if (authError) {
-        setError(authError.message);
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        setError(result.error || 'Signup failed');
         setSubmitting(false);
         return;
       }
-      if (data?.user) {
-        await supabase.from('profiles').upsert({ id: data.user.id, has_paid: false });
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setError(signInError.message);
+        setSubmitting(false);
+        return;
       }
     } else {
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
@@ -980,23 +988,14 @@ export default function Home() {
     } catch {}
 
     async function checkAuth() {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      setUser(currentUser);
-
-      if (currentUser) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('has_paid')
-          .eq('id', currentUser.id)
-          .single();
-
-        if (!profileData) {
-          // Profile row missing — create it so payment tracking works
-          await supabase.from('profiles').upsert({ id: currentUser.id, has_paid: false });
-          setHasAccess(false);
-        } else {
-          setHasAccess(profileData.has_paid === true);
-        }
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        setUser(data.user);
+        setHasAccess(data.hasAccess);
+      } catch {
+        setUser(null);
+        setHasAccess(false);
       }
       setAuthLoading(false);
     }
@@ -1007,20 +1006,18 @@ export default function Home() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         const newUser = session?.user ?? null;
-        setUser(newUser);
         if (!newUser) {
+          setUser(null);
           setHasAccess(false);
         } else {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('has_paid')
-            .eq('id', newUser.id)
-            .single();
-          if (!profileData) {
-            await supabase.from('profiles').upsert({ id: newUser.id, has_paid: false });
+          try {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            setUser(data.user);
+            setHasAccess(data.hasAccess);
+          } catch {
+            setUser(newUser);
             setHasAccess(false);
-          } else {
-            setHasAccess(profileData.has_paid === true);
           }
         }
       }
@@ -1040,17 +1037,18 @@ export default function Home() {
     let attempts = 0;
     const poll = setInterval(async () => {
       attempts++;
-      const { data } = await supabase
-        .from('profiles')
-        .select('has_paid')
-        .eq('id', user.id)
-        .single();
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        if (data.hasAccess) {
+          setHasAccess(true);
+          setVerifyingPayment(false);
+          clearInterval(poll);
+          return;
+        }
+      } catch {}
 
-      if (data?.has_paid) {
-        setHasAccess(true);
-        setVerifyingPayment(false);
-        clearInterval(poll);
-      } else if (attempts >= 8) {
+      if (attempts >= 8) {
         setVerifyingPayment(false);
         clearInterval(poll);
       }

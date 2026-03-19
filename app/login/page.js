@@ -19,15 +19,24 @@ export default function LoginPage() {
     setError('');
 
     if (isSignUp) {
-      const { data, error: authError } = await supabase.auth.signUp({ email, password });
-      if (authError) {
-        setError(authError.message);
+      // Use server-side signup to auto-confirm the account
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        setError(result.error || 'Signup failed');
         setLoading(false);
         return;
       }
-      // Create a profiles row so payment status can be tracked
-      if (data?.user) {
-        await supabase.from('profiles').upsert({ id: data.user.id, has_paid: false });
+      // Sign in immediately after account creation
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
       }
     } else {
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password });

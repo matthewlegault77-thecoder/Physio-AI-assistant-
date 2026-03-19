@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '../lib/supabase/client';
 import ShaderBackground from '../components/ui/shader-background';
 import { SplineScene } from '../components/ui/spline-scene';
+import TreatmentChatbot from '../components/ui/treatment-chatbot';
 
 const SPLINE_SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
@@ -340,6 +341,9 @@ function TreatmentTree({ data, injury, onStartOver }) {
           </button>
         </div>
       </RevealSection>
+
+      {/* Chatbot */}
+      <TreatmentChatbot planData={data} />
     </div>
   );
 }

@@ -83,3 +83,34 @@
   border-top: 1px solid #e2e8f0;
   margin: 1.5rem 0;
 }
+
+/* Chatbot panel */
+.chatbot-panel {
+  height: min(480px, calc(100vh - 10rem));
+  animation: chatSlideUp 0.25s ease-out;
+}
+
+.chatbot-messages {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.chatbot-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+@keyframes chatSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

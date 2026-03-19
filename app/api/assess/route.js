@@ -10,6 +10,7 @@ Use this exact structure:
   "diagnosis": {
     "title": "Patellar Tendinopathy",
     "tagline": "A witty 6-8 word summary of the condition",
+    "summary": "A plain-English 25-30 word explanation of this condition that a non-medical person can understand",
     "severity": "moderate",
     "healingTime": "4-8 weeks"
   },

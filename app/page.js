@@ -199,6 +199,7 @@ function CTAButton({ onClick, label, emoji }) {
 
 function TreatmentTree({ data, injury, onStartOver }) {
   const [show, setShow] = useState({ why: false, solution: false, nextSteps: false });
+  const [showInfo, setShowInfo] = useState(false);
   const reveal = (key) => setShow(v => ({ ...v, [key]: true }));
 
   const sev = data.diagnosis?.severity;
@@ -235,7 +236,25 @@ function TreatmentTree({ data, injury, onStartOver }) {
           {/* Diagnosis info */}
           <div className="flex-1 p-6 flex flex-col justify-center">
             <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Diagnosis</span>
-            <h3 className="text-xl font-bold text-slate-900 mt-1">{data.diagnosis?.title}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              <h3 className="text-xl font-bold text-slate-900">{data.diagnosis?.title}</h3>
+              <button
+                onClick={() => setShowInfo(!showInfo)}
+                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all shrink-0 ${showInfo ? 'bg-amber-100 text-amber-600 ring-2 ring-amber-200' : 'bg-amber-50 text-amber-500 hover:bg-amber-100 hover:text-amber-600'}`}
+                aria-label="More info about this condition"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM10 18a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1zM10 8a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 8z" />
+                </svg>
+              </button>
+            </div>
+            {showInfo && data.diagnosis?.summary && (
+              <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 animate-fadeIn">
+                <p className="text-sm text-amber-800 leading-relaxed">
+                  <span className="font-semibold">💡 What is this?</span> {data.diagnosis.summary}
+                </p>
+              </div>
+            )}
             <p className="text-slate-400 text-sm italic mt-1">"{data.diagnosis?.tagline}"</p>
             <div className="flex flex-wrap gap-2 mt-4">
               <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${sevStyle}`}>

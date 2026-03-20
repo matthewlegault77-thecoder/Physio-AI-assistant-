@@ -7,6 +7,16 @@ export const metadata = {
   verification: {
     google: 'W6r9njDL8arNcw4n05gQ2EZEHYhVujeu75UtNxt68pA',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({ children }) {

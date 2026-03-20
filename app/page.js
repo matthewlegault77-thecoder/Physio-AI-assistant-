@@ -244,7 +244,7 @@ function TreatmentTree({ data, injury, onStartOver }) {
                 aria-label="More info about this condition"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM10 18a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1zM10 8a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 8z" />
+                  <path fillRule="evenodd" d="M10 2a6 6 0 00-2.47 11.47c.24.14.47.36.62.63.15.26.35.9.35.9h3c0 0 .2-.64.35-.9.15-.27.38-.49.62-.63A6 6 0 0010 2zM8 16.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zm.5 1.5a.5.5 0 000 1h3a.5.5 0 000-1h-3z" clipRule="evenodd" />
                 </svg>
               </button>
             </div>

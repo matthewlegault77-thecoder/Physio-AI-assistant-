@@ -214,7 +214,7 @@ function TreatmentTree({ data, injury, onStartOver }) {
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Your Treatment Plan</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Step Into a Stronger You Today</h2>
           <p className="text-sm text-slate-500 mt-0.5">Click each section to explore your recovery journey</p>
         </div>
         <button
@@ -703,7 +703,7 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
         </Field>
         <Field label="Previous Occurrence?"><Input value={injury.previous} onChange={set('previous')} placeholder="e.g. Yes, same ankle 2 years ago / No" /></Field>
         <Field label="Current Limitations"><Input value={injury.limitations} onChange={set('limitations')} placeholder="e.g. cannot run, difficult to lift overhead" /></Field>
-        <Field label="Treatments Already Tried"><Input value={injury.treatments_tried} onChange={set('treatments_tried')} placeholder="e.g. ice, rest, ibuprofen" /></Field>
+        <Field label="What Have You Already Tried?"><Input value={injury.treatments_tried} onChange={set('treatments_tried')} placeholder="e.g. ice, rest, ibuprofen" /></Field>
       </SectionCard>
 
       <div className="flex gap-3">
@@ -839,7 +839,7 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
             </div>
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-100">
               <p className="text-sm text-amber-800">
-                Your account does not have access yet. You&apos;ll need to complete a one-time <span className="font-bold">$35</span> payment to generate treatment plans.
+                Your account does not have access yet. You&apos;ll need to complete a one-time <span className="font-bold">$35</span> payment to generate recovery plans.
               </p>
             </div>
           </div>
@@ -855,7 +855,7 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
               onClick={onGenerate}
               className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
             >
-              Generate Treatment Plan
+              Begin Your Recovery
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </button>
           ) : (

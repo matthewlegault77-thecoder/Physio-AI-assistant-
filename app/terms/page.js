@@ -25,7 +25,7 @@ export default function TermsOfService() {
 
             <section>
               <h2 className="text-lg font-semibold text-slate-800 mb-2">2. Description of Service</h2>
-              <p>Physio AI Pal is an AI-powered tool that provides personalized injury assessments and rehabilitation guidance. The Service uses artificial intelligence to generate treatment plans based on the information you provide.</p>
+              <p>Physio AI Pal is an AI-powered tool that provides personalized injury assessments and rehabilitation guidance. The Service uses artificial intelligence to generate recovery steps based on the information you provide.</p>
             </section>
 
             <section>
@@ -61,7 +61,7 @@ export default function TermsOfService() {
 
             <section>
               <h2 className="text-lg font-semibold text-slate-800 mb-2">7. Intellectual Property</h2>
-              <p>All content, design, code, and AI models powering Physio AI Pal are the property of the Service operator. Treatment plans generated for you are yours to keep and use personally, but may not be commercially redistributed.</p>
+              <p>All content, design, code, and AI models powering Physio AI Pal are the property of the Service operator. Recovery steps generated for you are yours to keep and use personally, but may not be commercially redistributed.</p>
             </section>
 
             <section>

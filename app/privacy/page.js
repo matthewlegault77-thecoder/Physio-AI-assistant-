@@ -20,14 +20,14 @@ export default function PrivacyPolicy() {
           <div className="prose prose-slate max-w-none space-y-6 text-sm leading-relaxed text-slate-600">
             <section>
               <h2 className="text-lg font-semibold text-slate-800 mb-2">1. Information We Collect</h2>
-              <p><strong>Profile &amp; Injury Data:</strong> When you use Physio AI Pal, you may provide personal details (age, sex, height, weight), fitness background, medical history, and injury descriptions. This data is stored <strong>locally in your browser&apos;s localStorage</strong> and is never uploaded to or stored on our servers beyond what is needed to generate your treatment plan in a single request.</p>
+              <p><strong>Profile &amp; Injury Data:</strong> When you use Physio AI Pal, you may provide personal details (age, sex, height, weight), fitness background, medical history, and injury descriptions. This data is stored <strong>locally in your browser&apos;s localStorage</strong> and is never uploaded to or stored on our servers beyond what is needed to generate your recovery steps in a single request.</p>
               <p><strong>Payment Information:</strong> Payments are processed entirely by <strong>Stripe</strong>. We never receive, store, or have access to your full card number, CVV, or billing details. Stripe may collect your name, email, and payment method details under their own privacy policy.</p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-slate-800 mb-2">2. How We Use Your Information</h2>
               <ul className="list-disc pl-5 space-y-1">
-                <li>To generate personalized AI-powered injury assessments and treatment plans.</li>
+                <li>To generate personalized AI-powered injury assessments and recovery steps.</li>
                 <li>To process your one-time payment for lifetime access via Stripe.</li>
                 <li>To improve the quality and accuracy of our service.</li>
               </ul>
@@ -35,14 +35,14 @@ export default function PrivacyPolicy() {
 
             <section>
               <h2 className="text-lg font-semibold text-slate-800 mb-2">3. Data Storage &amp; Security</h2>
-              <p>Your profile and injury data is stored in your browser&apos;s localStorage. We do not maintain a user database with your personal or medical information. When you submit an assessment, your data is sent to our server solely to generate your treatment plan via an AI model, and is not retained after the response is returned.</p>
+              <p>Your profile and injury data is stored in your browser&apos;s localStorage. We do not maintain a user database with your personal or medical information. When you submit an assessment, your data is sent to our server solely to generate your recovery steps via an AI model, and is not retained after the response is returned.</p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-slate-800 mb-2">4. Third-Party Services</h2>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Stripe:</strong> Handles all payment processing. See <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Stripe&apos;s Privacy Policy</a>.</li>
-                <li><strong>Anthropic (Claude AI):</strong> Powers our AI assessment engine. Data sent to generate treatment plans is subject to <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Anthropic&apos;s Privacy Policy</a>.</li>
+                <li><strong>Anthropic (Claude AI):</strong> Powers our AI assessment engine. Data sent to generate recovery steps is subject to <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Anthropic&apos;s Privacy Policy</a>.</li>
               </ul>
             </section>
 

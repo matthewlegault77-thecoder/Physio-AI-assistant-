@@ -121,7 +121,7 @@ export default function TreatmentChatbot({ planData }) {
               🩺
             </div>
             <div>
-              <h3 className="text-white font-bold text-sm">Treatment Plan Assistant</h3>
+              <h3 className="text-white font-bold text-sm">Your Physio Assistant</h3>
               <p className="text-blue-100 text-xs">Ask me anything about your plan</p>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function TreatmentChatbot({ planData }) {
               <div className="text-center py-6">
                 <div className="text-3xl mb-3">👋</div>
                 <p className="text-sm text-slate-600 font-medium mb-1">
-                  Hi! I can help explain your treatment plan.
+                  Hi! I can help you understand your results.
                 </p>
                 <p className="text-xs text-slate-400 mb-4">
                   Ask about your diagnosis, exercises, timelines, or any medical terms.
@@ -185,7 +185,7 @@ export default function TreatmentChatbot({ planData }) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about your treatment plan..."
+                placeholder="Ask me anything about your recovery..."
                 disabled={loading}
                 className="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder:text-slate-400 disabled:opacity-50"
               />

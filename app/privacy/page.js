@@ -2,6 +2,9 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Privacy Policy — Physio AI Pal',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 export default function PrivacyPolicy() {

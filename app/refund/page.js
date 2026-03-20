@@ -2,6 +2,9 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Refund Policy — Physio AI Pal',
+  alternates: {
+    canonical: '/refund',
+  },
 };
 
 export default function RefundPolicy() {

@@ -2,8 +2,12 @@ import './globals.css';
 import Link from 'next/link';
 
 export const metadata = {
+  metadataBase: new URL('https://physioaipal.com'),
   title: 'AI Physiotherapist',
   description: 'Personalized injury assessment and rehabilitation planning powered by AI.',
+  alternates: {
+    canonical: '/',
+  },
   verification: {
     google: 'W6r9njDL8arNcw4n05gQ2EZEHYhVujeu75UtNxt68pA',
   },

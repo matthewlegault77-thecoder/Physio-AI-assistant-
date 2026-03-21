@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata = {
   metadataBase: new URL('https://physioaipal.com'),
   title: 'AI Physiotherapist',
-  description: 'Personalized injury assessment and rehabilitation planning powered by AI.',
+  description: 'Physio AI Pal - pocket physiotherapist. Powered by Claude AI for deeply personalized injury assessments and rehab plans, available 24/7 from any device.',
   alternates: {
     canonical: '/',
   },

@@ -1,4 +1,4 @@
-# AI Physiotherapist
+# Physio AI Pal
 
 Personalized injury assessment and rehabilitation planning powered by Claude AI.
 

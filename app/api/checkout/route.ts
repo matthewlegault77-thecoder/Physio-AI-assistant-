@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         { price: priceId, quantity: 1 },
       ],
       mode: 'payment',
-      success_url: `${origin}?payment=success`,
+      success_url: `${origin}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}?payment=cancelled`,
       customer_email: user.email,
       metadata: {

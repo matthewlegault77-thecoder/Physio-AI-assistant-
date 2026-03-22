@@ -15,7 +15,8 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    // Match all paths except static files
-    '/((?!_next/static|_next/image|favicon.ico|logo.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Match all paths except static files and the Stripe webhook endpoint
+    // (webhook needs the raw body untouched for signature verification)
+    '/((?!_next/static|_next/image|favicon.ico|logo.png|api/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

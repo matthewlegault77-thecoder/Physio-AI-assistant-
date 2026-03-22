@@ -1049,35 +1049,58 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Handle return from Stripe Checkout — poll for webhook completion
+  // Handle return from Stripe Checkout — verify payment directly, then poll
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') !== 'success' || !user || hasAccess) return;
 
+    const sessionId = params.get('session_id');
     window.history.replaceState({}, '', window.location.pathname);
     setVerifyingPayment(true);
 
-    let attempts = 0;
-    const poll = setInterval(async () => {
-      attempts++;
-      try {
-        const res = await fetch('/api/me');
-        const data = await res.json();
-        if (data.hasAccess) {
-          setHasAccess(true);
+    const verify = async () => {
+      // First, try verifying directly with Stripe (doesn't depend on webhook)
+      if (sessionId) {
+        try {
+          const res = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          });
+          const data = await res.json();
+          if (data.paid) {
+            setHasAccess(true);
+            setVerifyingPayment(false);
+            return;
+          }
+        } catch {}
+      }
+
+      // Fallback: poll /api/me in case webhook already handled it
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await fetch('/api/me');
+          const data = await res.json();
+          if (data.hasAccess) {
+            setHasAccess(true);
+            setVerifyingPayment(false);
+            clearInterval(poll);
+            return;
+          }
+        } catch {}
+
+        if (attempts >= 8) {
           setVerifyingPayment(false);
           clearInterval(poll);
-          return;
         }
-      } catch {}
+      }, 2000);
 
-      if (attempts >= 8) {
-        setVerifyingPayment(false);
-        clearInterval(poll);
-      }
-    }, 2000);
+      return () => clearInterval(poll);
+    };
 
-    return () => clearInterval(poll);
+    verify();
   }, [user, hasAccess]);
 
   useEffect(() => {

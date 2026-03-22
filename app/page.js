@@ -164,7 +164,7 @@ const NEXT_EMOJIS = { Today: '🚀', 'This Week': '📅', 'Next Month': '🗓️
 
 function RevealSection({ visible, children }) {
   return (
-    <div className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none select-none'}`}>
+    <div className={`transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.97] pointer-events-none select-none'}`}>
       {children}
     </div>
   );
@@ -182,17 +182,17 @@ function Connector({ visible }) {
 
 function CTAButton({ onClick, label, emoji }) {
   return (
-    <div className="flex flex-col items-center my-2">
-      <div className="w-px h-5 bg-slate-300" />
+    <div className="flex flex-col items-center my-2 animate-fadeIn">
+      <div className="w-px h-5 bg-gradient-to-b from-slate-300 to-indigo-300" />
       <button
         onClick={onClick}
-        className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-full hover:bg-slate-700 active:scale-95 transition-all shadow-md hover:shadow-lg"
+        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-900 to-slate-800 text-white text-sm font-semibold rounded-full hover:from-indigo-700 hover:to-violet-700 active:scale-95 transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-indigo-500/20"
       >
         <span>{emoji}</span>
         <span>{label}</span>
-        <span className="text-slate-400">↓</span>
+        <svg className="w-3.5 h-3.5 text-slate-400 animate-bounce" style={{ animationDuration: '2s' }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
       </button>
-      <div className="w-px h-4 bg-slate-300" />
+      <div className="w-px h-4 bg-gradient-to-b from-indigo-300 to-slate-300" />
     </div>
   );
 }
@@ -512,7 +512,7 @@ function StepIndicator({ step }) {
     { label: 'Results', icon: '📊' },
   ];
   return (
-    <div className="flex items-center justify-center mb-10">
+    <div className="flex items-center justify-center mb-10 animate-fadeIn">
       {steps.map(({ label, icon }, i) => {
         const num = i + 1;
         const active = step === num;
@@ -520,23 +520,36 @@ function StepIndicator({ step }) {
         return (
           <div key={label} className="flex items-center">
             <div className="flex flex-col items-center gap-1.5">
-              <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                active
-                  ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 ring-4 ring-blue-100'
-                  : done
-                  ? 'bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-md'
-                  : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
-              }`}>
-                {done ? '✓' : icon}
+              <div className="relative">
+                {active && (
+                  <div className="absolute inset-0 rounded-full bg-indigo-400/30 animate-breathe" style={{ margin: '-4px' }} />
+                )}
+                <div className={`relative w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${
+                  active
+                    ? 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/40 ring-4 ring-indigo-100'
+                    : done
+                    ? 'bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
+                }`}>
+                  {done ? (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : icon}
+                </div>
               </div>
-              <span className={`text-xs font-semibold tracking-wide transition-colors ${
-                active ? 'text-blue-700' : done ? 'text-emerald-600' : 'text-slate-400'
+              <span className={`text-xs font-semibold tracking-wide transition-colors duration-300 ${
+                active ? 'text-indigo-700' : done ? 'text-emerald-600' : 'text-slate-400'
               }`}>{label}</span>
             </div>
             {i < steps.length - 1 && (
-              <div className={`w-16 h-0.5 rounded-full mx-3 mb-5 transition-colors duration-300 ${
-                step > num ? 'bg-gradient-to-r from-emerald-400 to-blue-400' : 'bg-slate-200'
-              }`} />
+              <div className="relative w-16 mx-3 mb-5">
+                <div className="h-0.5 rounded-full bg-slate-200 w-full" />
+                <div
+                  className="absolute top-0 h-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-indigo-400 transition-all duration-700 ease-out"
+                  style={{ width: step > num ? '100%' : '0%' }}
+                />
+              </div>
             )}
           </div>
         );
@@ -545,42 +558,102 @@ function StepIndicator({ step }) {
   );
 }
 
+// ─── Floating Particles ──────────────────────────────────────────────────────
+function FloatingParticles() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full animate-float-slow"
+          style={{
+            width: `${4 + i * 2}px`,
+            height: `${4 + i * 2}px`,
+            background: `radial-gradient(circle, rgba(139, 92, 246, ${0.3 + i * 0.05}), transparent)`,
+            left: `${10 + i * 15}%`,
+            top: `${20 + (i % 3) * 25}%`,
+            animationDelay: `${i * 0.8}s`,
+            animationDuration: `${6 + i * 1.5}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // ─── Step 0: Disclaimer ───────────────────────────────────────────────────────
 function DisclaimerStep({ onContinue }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   return (
     <>
       <ShaderBackground />
-      <div className="max-w-2xl mx-auto relative z-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full mb-4 border border-white/30 overflow-hidden">
-            <img src="/logo.png" alt="Physio AI Pal" className="w-16 h-16 object-contain" />
+      <FloatingParticles />
+      <div className={`max-w-2xl mx-auto relative z-10 transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div className="text-center mb-10">
+          {/* Logo with breathing ring */}
+          <div className="relative inline-block mb-6">
+            <div className="absolute inset-0 rounded-full bg-violet-500/20 animate-breathe" style={{ margin: '-8px' }} />
+            <div className="absolute inset-0 rounded-full bg-indigo-500/10 animate-breathe" style={{ margin: '-16px', animationDelay: '1s' }} />
+            <div className="relative inline-flex items-center justify-center w-28 h-28 bg-white/15 backdrop-blur-md rounded-full border border-white/25 overflow-hidden shadow-2xl animate-glowPulse">
+              <img src="/logo.png" alt="Physio AI Pal" className="w-18 h-18 object-contain" />
+            </div>
           </div>
-          <h1 className="text-4xl font-bold text-white drop-shadow-lg">Physio AI Pal</h1>
-          <p className="text-white/70 mt-2 text-lg">Personalized injury assessment and rehab planning</p>
+
+          <h1 className="text-5xl font-extrabold text-white drop-shadow-lg tracking-tight">
+            Physio <span className="text-gradient-animated">AI</span> Pal
+          </h1>
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <div className="ai-dot" />
+            <div className="ai-dot" />
+            <div className="ai-dot" />
+            <p className="text-white/60 text-lg font-light ml-2">AI-powered injury assessment & rehab</p>
+          </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 mb-4">
-          <h2 className="text-lg font-bold text-amber-300 mb-3">Medical Disclaimer</h2>
-          <ul className="text-sm text-white/80 space-y-2">
-            <li>This tool provides AI-generated guidance for <strong className="text-white">educational purposes only</strong>. It is not a substitute for professional medical diagnosis or treatment.</li>
-            <li>Always consult a licensed physiotherapist or physician before beginning any rehabilitation program.</li>
-            <li>If your condition worsens at any point, stop all exercises and seek professional care.</li>
+        <div className={`glass-card rounded-2xl p-6 mb-4 animate-glowPulse transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <h2 className="text-lg font-bold text-amber-300">Medical Disclaimer</h2>
+          </div>
+          <ul className="text-sm text-white/80 space-y-2.5">
+            <li className="flex items-start gap-2">
+              <span className="text-violet-400 mt-0.5 shrink-0">&#9656;</span>
+              This tool provides AI-generated guidance for <strong className="text-white">educational purposes only</strong>. It is not a substitute for professional medical diagnosis or treatment.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-violet-400 mt-0.5 shrink-0">&#9656;</span>
+              Always consult a licensed physiotherapist or physician before beginning any rehabilitation program.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-violet-400 mt-0.5 shrink-0">&#9656;</span>
+              If your condition worsens at any point, stop all exercises and seek professional care.
+            </li>
           </ul>
         </div>
 
-        <div className="bg-red-900/30 backdrop-blur-md border border-red-400/30 rounded-xl p-6 mb-8">
-          <h2 className="text-sm font-bold text-red-300 mb-2 uppercase tracking-wide">Seek Emergency Care Immediately If You Have:</h2>
-          <ul className="text-sm text-red-200/80 space-y-1">
-            <li>Severe pain, inability to move a limb, or visible deformity</li>
-            <li>Loss of bladder or bowel control</li>
-            <li>Chest pain, difficulty breathing, or signs of a stroke</li>
-            <li>Numbness or tingling spreading into both legs</li>
+        <div className={`bg-red-950/40 backdrop-blur-md border border-red-400/20 rounded-2xl p-6 mb-8 transition-all duration-700 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+            <h2 className="text-sm font-bold text-red-300 uppercase tracking-wide">Seek Emergency Care Immediately If You Have:</h2>
+          </div>
+          <ul className="text-sm text-red-200/80 space-y-1.5">
+            <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">!</span> Severe pain, inability to move a limb, or visible deformity</li>
+            <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">!</span> Loss of bladder or bowel control</li>
+            <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">!</span> Chest pain, difficulty breathing, or signs of a stroke</li>
+            <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">!</span> Numbness or tingling spreading into both legs</li>
           </ul>
         </div>
 
-        <button onClick={onContinue} className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-bold py-4 px-6 rounded-xl transition-all text-base shadow-lg hover:shadow-xl">
-          I Understand, Continue →
+        <button
+          onClick={onContinue}
+          className={`w-full shimmer-btn bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 backdrop-blur-sm border border-white/20 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 text-base shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 hover:scale-[1.02] active:scale-[0.98] delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        >
+          I Understand, Continue &rarr;
         </button>
+
+        <p className="text-center text-white/30 text-xs mt-6 tracking-wide">Powered by advanced AI models</p>
       </div>
     </>
   );
@@ -589,24 +662,31 @@ function DisclaimerStep({ onContinue }) {
 // ─── Step 1: Profile ──────────────────────────────────────────────────────────
 function SectionCard({ icon, title, color, delay, children }) {
   const colors = {
-    blue: 'border-t-blue-500',
+    blue: 'border-t-indigo-500',
     emerald: 'border-t-emerald-500',
     rose: 'border-t-rose-500',
-    purple: 'border-t-purple-500',
+    purple: 'border-t-violet-500',
     amber: 'border-t-amber-500',
   };
   const iconBg = {
-    blue: 'bg-blue-100 text-blue-600',
-    emerald: 'bg-emerald-100 text-emerald-600',
-    rose: 'bg-rose-100 text-rose-600',
-    purple: 'bg-purple-100 text-purple-600',
-    amber: 'bg-amber-100 text-amber-600',
+    blue: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    rose: 'bg-rose-50 text-rose-600',
+    purple: 'bg-violet-50 text-violet-600',
+    amber: 'bg-amber-50 text-amber-600',
+  };
+  const glowColor = {
+    blue: 'hover:shadow-indigo-100/50',
+    emerald: 'hover:shadow-emerald-100/50',
+    rose: 'hover:shadow-rose-100/50',
+    purple: 'hover:shadow-violet-100/50',
+    amber: 'hover:shadow-amber-100/50',
   };
   return (
-    <div className={`bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] ${colors[color]} p-6 mb-5 card-hover shadow-sm animate-slideUp${delay ? `-${delay}` : ''}`}>
+    <div className={`bg-white/90 backdrop-blur-sm rounded-2xl border border-slate-200/60 border-t-[3px] ${colors[color]} p-6 mb-5 card-hover shadow-sm ${glowColor[color]} animate-revealUp${delay ? `-${delay}` : ''}`}>
       <div className="flex items-center gap-3 mb-5">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${iconBg[color]}`}>{icon}</div>
-        <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">{title}</h3>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${iconBg[color]} shadow-sm`}>{icon}</div>
+        <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">{title}</h3>
       </div>
       {children}
     </div>
@@ -618,9 +698,9 @@ function ProfileStep({ profile, onChange, onNext }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-slate-900">Your Profile</h2>
-        <p className="text-slate-500 text-sm mt-1">Saved locally in your browser. All fields optional.</p>
+      <div className="mb-8 text-center animate-fadeIn">
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Your Profile</h2>
+        <p className="text-slate-400 text-sm mt-2">Saved locally in your browser. All fields optional.</p>
       </div>
 
       <SectionCard icon="👤" title="Personal" color="blue" delay="">
@@ -654,7 +734,7 @@ function ProfileStep({ profile, onChange, onNext }) {
         <Field label="Surgeries" hint="comma-separated"><Input value={profile.medical.surgeries} onChange={set('medical', 'surgeries')} placeholder="e.g. appendectomy 2018" /></Field>
       </SectionCard>
 
-      <button onClick={onNext} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
+      <button onClick={onNext} className="w-full shimmer-btn bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
         Continue to Injury Description
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
       </button>
@@ -671,9 +751,9 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-slate-900">Describe Your Injury</h2>
-        <p className="text-slate-500 text-sm mt-1">The more detail you provide, the more accurate your plan will be.</p>
+      <div className="mb-8 text-center animate-fadeIn">
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Describe Your Injury</h2>
+        <p className="text-slate-400 text-sm mt-2">The more detail you provide, the more accurate your AI plan will be.</p>
       </div>
 
       <SectionCard icon="📍" title="Injury Details" color="purple" delay="">
@@ -714,7 +794,7 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
         <button
           onClick={onNext}
           disabled={!valid || loading}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-300 disabled:to-slate-300 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+          className="flex-1 shimmer-btn bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:from-slate-300 disabled:to-slate-300 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -853,7 +933,7 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
           {hasAccess ? (
             <button
               onClick={onGenerate}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+              className="flex-1 shimmer-btn bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Begin Your Recovery
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -861,7 +941,7 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
           ) : (
             <button
               onClick={onPay}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+              className="flex-1 shimmer-btn bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Continue to Payment
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
@@ -974,14 +1054,58 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
 
 // ─── Results loading / error ───────────────────────────────────────────────────
 function LoadingResults() {
+  const [dots, setDots] = useState('');
+  const [phase, setPhase] = useState(0);
+  const phases = ['Analyzing your injury data', 'Consulting AI models', 'Building your recovery plan', 'Personalizing recommendations'];
+
+  useEffect(() => {
+    const dotTimer = setInterval(() => setDots(d => d.length >= 3 ? '' : d + '.'), 500);
+    const phaseTimer = setInterval(() => setPhase(p => (p + 1) % phases.length), 3000);
+    return () => { clearInterval(dotTimer); clearInterval(phaseTimer); };
+  }, []);
+
   return (
-    <div className="flex flex-col items-center justify-center py-32 text-slate-400">
-      <div className="relative mb-6">
-        <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
-        <div className="absolute inset-0 flex items-center justify-center text-2xl">🏥</div>
+    <div className="flex flex-col items-center justify-center py-24 animate-scaleIn">
+      <div className="relative mb-8">
+        {/* Outer breathing ring */}
+        <div className="absolute inset-0 rounded-full border-2 border-indigo-200/50 animate-breathe" style={{ margin: '-12px' }} />
+        <div className="absolute inset-0 rounded-full border border-violet-300/30 animate-breathe" style={{ margin: '-24px', animationDelay: '1s' }} />
+
+        {/* Main spinner */}
+        <div className="relative w-20 h-20">
+          <div className="absolute inset-0 rounded-full border-4 border-indigo-100" />
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 border-r-violet-500 animate-spin" style={{ animationDuration: '1.2s' }} />
+          <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-violet-400 border-l-indigo-400 animate-spin" style={{ animationDuration: '1.8s', animationDirection: 'reverse' }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex gap-1">
+              <div className="typing-dot" />
+              <div className="typing-dot" />
+              <div className="typing-dot" />
+            </div>
+          </div>
+        </div>
       </div>
-      <p className="text-base font-medium text-slate-600">Analyzing your injury...</p>
-      <p className="text-sm mt-1">Building your personalized plan</p>
+
+      <p className="text-lg font-semibold text-slate-700 transition-all duration-500">{phases[phase]}{dots}</p>
+      <p className="text-sm text-slate-400 mt-2">This usually takes 10-15 seconds</p>
+
+      {/* Progress bar */}
+      <div className="w-64 h-1.5 bg-slate-100 rounded-full mt-6 overflow-hidden">
+        <div className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 rounded-full" style={{
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 2s ease-in-out infinite, loading-expand 15s ease-out forwards',
+        }} />
+      </div>
+
+      <style jsx>{`
+        @keyframes loading-expand {
+          0% { width: 5%; }
+          30% { width: 40%; }
+          60% { width: 65%; }
+          80% { width: 80%; }
+          100% { width: 95%; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -1178,16 +1302,16 @@ export default function Home() {
   };
 
   return (
-    <main className={`min-h-screen py-10 px-4 ${step === 0 ? 'bg-transparent' : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40'}`}>
+    <main className={`min-h-screen py-10 px-4 transition-colors duration-700 ${step === 0 ? 'bg-transparent' : 'bg-gradient-to-br from-slate-50 via-indigo-50/20 to-violet-50/30'}`}>
       {/* User bar */}
       {user && (
-        <div className="fixed top-4 right-4 flex items-center gap-3 z-30">
-          <span className="text-sm text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm border border-slate-200">
+        <div className="fixed top-4 right-4 flex items-center gap-3 z-30 animate-fadeIn">
+          <span className="text-sm text-slate-500 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-slate-200/60">
             {user.email}
           </span>
           <button
             onClick={handleSignOut}
-            className="text-sm text-slate-400 hover:text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 transition-colors"
+            className="text-sm text-slate-400 hover:text-slate-600 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-slate-200/60 transition-all hover:shadow-md"
           >
             Sign out
           </button>
@@ -1213,28 +1337,34 @@ export default function Home() {
         {step > 0 && step < 4 && <StepIndicator step={step} />}
 
         {step === 1 && (
-          <ProfileStep profile={profile} onChange={setProfile} onNext={() => setStep(2)} />
+          <div key="step-1" className="page-transition">
+            <ProfileStep profile={profile} onChange={setProfile} onNext={() => setStep(2)} />
+          </div>
         )}
 
         {step === 2 && (
-          <InjuryStep
-            injury={injury}
-            onChange={setInjury}
-            onNext={() => setStep(3)}
-            onBack={() => setStep(1)}
-            loading={false}
-          />
+          <div key="step-2" className="page-transition">
+            <InjuryStep
+              injury={injury}
+              onChange={setInjury}
+              onNext={() => setStep(3)}
+              onBack={() => setStep(1)}
+              loading={false}
+            />
+          </div>
         )}
 
         {step === 3 && (
-          <AccountStep
-            user={user}
-            hasAccess={hasAccess}
-            authLoading={authLoading}
-            onGenerate={generatePlan}
-            onPay={() => setShowPayment(true)}
-            onBack={() => setStep(2)}
-          />
+          <div key="step-3" className="page-transition">
+            <AccountStep
+              user={user}
+              hasAccess={hasAccess}
+              authLoading={authLoading}
+              onGenerate={generatePlan}
+              onPay={() => setShowPayment(true)}
+              onBack={() => setStep(2)}
+            />
+          </div>
         )}
 
         {step === 4 && loading && <LoadingResults />}

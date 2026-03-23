@@ -108,11 +108,14 @@ export async function POST(request) {
 
   const { data: profileRow } = await supabase
     .from('profiles')
-    .select('has_paid')
+    .select('has_paid, free_generation_used')
     .eq('id', user.id)
     .single();
 
-  if (!profileRow?.has_paid) {
+  const hasPaid = profileRow?.has_paid === true;
+  const freeTrialAvailable = profileRow?.free_generation_used === false;
+
+  if (!hasPaid && !freeTrialAvailable) {
     return Response.json({ error: 'Payment required' }, { status: 403 });
   }
 
@@ -149,6 +152,14 @@ export async function POST(request) {
 
     // Validate it's parseable JSON before sending
     JSON.parse(cleaned);
+
+    // Mark free trial as used if this was a free generation
+    if (!hasPaid && freeTrialAvailable) {
+      await supabase
+        .from('profiles')
+        .update({ free_generation_used: true })
+        .eq('id', user.id);
+    }
 
     return Response.json({ plan: cleaned });
   } catch (err) {

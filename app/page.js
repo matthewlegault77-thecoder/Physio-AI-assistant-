@@ -815,7 +815,7 @@ function InjuryStep({ injury, onChange, onNext, onBack, loading }) {
 }
 
 // ─── Step 3: Account & Access ────────────────────────────────────────────────
-function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }) {
+function AccountStep({ user, hasAccess, freeGenerationUsed, authLoading, onGenerate, onPay, onBack }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -905,6 +905,25 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
               </div>
             </div>
           </div>
+        ) : !freeGenerationUsed ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] border-t-emerald-500 p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-emerald-100 text-emerald-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Free Trial Available</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Try 1 time for free, then $35 for lifetime access.</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-3 border border-emerald-100">
+              <p className="text-sm text-emerald-800">
+                Get <span className="font-bold">1 free rehab plan</span> to see how it works. Love it? Pay <span className="font-bold">$35</span> to unlock lifetime access.
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/80 border-t-[3px] border-t-amber-500 p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
@@ -915,12 +934,12 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Payment Required</h3>
-                <p className="text-xs text-slate-500 mt-0.5">One-time payment for lifetime access.</p>
+                <p className="text-xs text-slate-500 mt-0.5">You&apos;ve used your free plan.</p>
               </div>
             </div>
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-100">
               <p className="text-sm text-amber-800">
-                Your account does not have access yet. You&apos;ll need to complete a one-time <span className="font-bold">$35</span> payment to generate recovery plans.
+                You&apos;ve used your free rehab plan. Pay <span className="font-bold">$35</span> to unlock lifetime access and generate unlimited plans.
               </p>
             </div>
           </div>
@@ -939,12 +958,20 @@ function AccountStep({ user, hasAccess, authLoading, onGenerate, onPay, onBack }
               Begin Your Recovery
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </button>
+          ) : !freeGenerationUsed ? (
+            <button
+              onClick={onGenerate}
+              className="flex-1 shimmer-btn bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              Generate 1 Free Rehab Plan
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </button>
           ) : (
             <button
               onClick={onPay}
               className="flex-1 shimmer-btn bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              Continue to Payment
+              Unlock Lifetime Access — $35
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
             </button>
           )}
@@ -1121,6 +1148,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [showPayment, setShowPayment] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
+  const [freeGenerationUsed, setFreeGenerationUsed] = useState(false);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [verifyingPayment, setVerifyingPayment] = useState(false);
@@ -1141,9 +1169,11 @@ export default function Home() {
         const data = await res.json();
         setUser(data.user);
         setHasAccess(data.hasAccess);
+        setFreeGenerationUsed(data.freeGenerationUsed ?? false);
       } catch {
         setUser(null);
         setHasAccess(false);
+        setFreeGenerationUsed(false);
       }
       setAuthLoading(false);
     }
@@ -1157,15 +1187,18 @@ export default function Home() {
         if (!newUser) {
           setUser(null);
           setHasAccess(false);
+          setFreeGenerationUsed(false);
         } else {
           try {
             const res = await fetch('/api/me');
             const data = await res.json();
             setUser(data.user);
             setHasAccess(data.hasAccess);
+            setFreeGenerationUsed(data.freeGenerationUsed ?? false);
           } catch {
             setUser(newUser);
             setHasAccess(false);
+            setFreeGenerationUsed(false);
           }
         }
       }
@@ -1386,6 +1419,7 @@ export default function Home() {
             <AccountStep
               user={user}
               hasAccess={hasAccess}
+              freeGenerationUsed={freeGenerationUsed}
               authLoading={authLoading}
               onGenerate={generatePlan}
               onPay={() => setShowPayment(true)}

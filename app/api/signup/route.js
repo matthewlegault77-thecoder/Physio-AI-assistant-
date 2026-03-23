@@ -21,8 +21,8 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  // Create profiles row for payment tracking
-  await supabase.from('profiles').upsert({ id: data.user.id, has_paid: false });
+  // Create profiles row for payment tracking + free trial
+  await supabase.from('profiles').upsert({ id: data.user.id, has_paid: false, free_generation_used: false });
 
   return NextResponse.json({ user: { id: data.user.id, email: data.user.email } });
 }

@@ -6,6 +6,7 @@ import { createClient } from '../lib/supabase/client';
 import ShaderBackground from '../components/ui/shader-background';
 import { SplineScene } from '../components/ui/spline-scene';
 import TreatmentChatbot from '../components/ui/treatment-chatbot';
+import { ContainerScroll } from '../components/ui/container-scroll-animation';
 
 const SPLINE_SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
@@ -1338,19 +1339,45 @@ export default function Home() {
 
         {step === 1 && (
           <div key="step-1" className="page-transition">
-            <ProfileStep profile={profile} onChange={setProfile} onNext={() => setStep(2)} />
+            <ContainerScroll
+              titleComponent={
+                <h1 className="text-4xl font-semibold text-slate-900">
+                  Tell us about <br />
+                  <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                    Your Profile
+                  </span>
+                </h1>
+              }
+            >
+              <div className="overflow-y-auto h-full p-4 md:p-6">
+                <ProfileStep profile={profile} onChange={setProfile} onNext={() => setStep(2)} />
+              </div>
+            </ContainerScroll>
           </div>
         )}
 
         {step === 2 && (
           <div key="step-2" className="page-transition">
-            <InjuryStep
-              injury={injury}
-              onChange={setInjury}
-              onNext={() => setStep(3)}
-              onBack={() => setStep(1)}
-              loading={false}
-            />
+            <ContainerScroll
+              titleComponent={
+                <h1 className="text-4xl font-semibold text-slate-900">
+                  Describe your <br />
+                  <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                    Injury Details
+                  </span>
+                </h1>
+              }
+            >
+              <div className="overflow-y-auto h-full p-4 md:p-6">
+                <InjuryStep
+                  injury={injury}
+                  onChange={setInjury}
+                  onNext={() => setStep(3)}
+                  onBack={() => setStep(1)}
+                  loading={false}
+                />
+              </div>
+            </ContainerScroll>
           </div>
         )}
 

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../lib/supabase/client';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -10,8 +11,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fingerprint, setFingerprint] = useState(null);
   const router = useRouter();
   const supabase = createClient();
+
+  // Generate device fingerprint on mount
+  useEffect(() => {
+    const getFingerprint = async () => {
+      try {
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        setFingerprint(result.visitorId);
+      } catch (err) {
+        console.warn('Fingerprint generation failed:', err);
+      }
+    };
+    getFingerprint();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +39,7 @@ export default function LoginPage() {
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, fingerprint }),
       });
       const result = await res.json();
       if (!res.ok) {
@@ -44,6 +60,19 @@ export default function LoginPage() {
         setError(authError.message);
         setLoading(false);
         return;
+      }
+
+      // On login, update fingerprint if we have one and the profile doesn't have one yet
+      if (fingerprint) {
+        try {
+          await fetch('/api/update-fingerprint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fingerprint }),
+          });
+        } catch {
+          // Non-critical, don't block login
+        }
       }
     }
 

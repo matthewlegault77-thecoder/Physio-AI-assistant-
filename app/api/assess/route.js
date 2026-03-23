@@ -108,12 +108,35 @@ export async function POST(request) {
 
   const { data: profileRow } = await supabase
     .from('profiles')
-    .select('has_paid, free_generation_used')
+    .select('has_paid, free_generation_used, device_fingerprint')
     .eq('id', user.id)
     .single();
 
   const hasPaid = profileRow?.has_paid === true;
-  const freeTrialAvailable = profileRow?.free_generation_used === false;
+  let freeTrialAvailable = profileRow?.free_generation_used === false;
+
+  // --- Device Fingerprint Check ---
+  // Even if this account hasn't used its free trial, check if another account
+  // with the same device fingerprint has already used one
+  if (!hasPaid && freeTrialAvailable && profileRow?.device_fingerprint) {
+    const { data: fpMatches } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('device_fingerprint', profileRow.device_fingerprint)
+      .eq('free_generation_used', true)
+      .neq('id', user.id)
+      .limit(1);
+
+    if (fpMatches && fpMatches.length > 0) {
+      // Another account on this device already used the free trial
+      freeTrialAvailable = false;
+      // Also mark this account's free trial as used to prevent future attempts
+      await supabase
+        .from('profiles')
+        .update({ free_generation_used: true })
+        .eq('id', user.id);
+    }
+  }
 
   if (!hasPaid && !freeTrialAvailable) {
     return Response.json({ error: 'Payment required' }, { status: 403 });

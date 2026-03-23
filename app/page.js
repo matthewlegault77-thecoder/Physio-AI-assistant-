@@ -1302,6 +1302,8 @@ export default function Home() {
 
       const parsed = JSON.parse(data.plan);
       setPlanData(parsed);
+      // Mark free trial as used in frontend state
+      if (!hasAccess) setFreeGenerationUsed(true);
     } catch (err) {
       setError(`Error: ${err.message}`);
     } finally {
